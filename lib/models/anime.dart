@@ -1,24 +1,44 @@
-class Anime{
-    final int malId;
-    final String title;
-    final int year;
-    final double score;
+class Anime {
+  final String id;
+  final String title;
+  final String imagePath;
+  final String genre;
+  final String rating;
+  final String totalEpisodes;
+  final String description;
+  const Anime({
+    required this.id,
+    required this.title,
+    required this.imagePath,
+    required this.genre,
+    required this.rating,
+    required this.totalEpisodes,
+    required this.description,
+  });
 
-    Anime ({
-      required this.malId,
-      required this.title,
-      required this.year,
-      required this.score,
-    });
+  //mengubah objek ke bentuk Map (untuk di encode ke JSON)
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'genre': genre,
+      'rating': rating,
+      'imagePath': imagePath,
+      'totalEpisodes': totalEpisodes,
+      'description': description,
+    };
+  }
 
-  // Constructor Mapping
+  //mengubah Map ke bentuk objek (untuk di decode dari JSON)
   factory Anime.fromJson(Map<String, dynamic> json) {
-      return Anime (
-          malId: json ['mal_id'] as int,
-          title: json ['title'] as String,
-          year: json ['year'] as int,
-          score: (json  ['score'] as num).toDouble()
+    return Anime(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      genre: json['genre'] as String,
+      rating: json['rating'] as String,
+      imagePath: json['imagePath'] as String,
+      totalEpisodes: json['totalEpisodes'] as String,
+      description: json['description'] as String,
     );
-   }
-
+  }
 }

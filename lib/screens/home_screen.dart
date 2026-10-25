@@ -1,33 +1,88 @@
+import 'package:animeverse/provider/app_state_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:modul_5/repositories/anime_repository.dart';
+import 'package:provider/provider.dart';
+import '../widgets/genre_list.dart';
+import '../widgets/anime_view.dart';
+import '../widgets/app_scaffold.dart';
+import '../widgets/search_field.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen ({super.key});
+  const HomeScreen({super.key});
+
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+
 class _HomeScreenState extends State<HomeScreen> {
-  final AnimeRepository _repository = AnimeRepository();
-  late Future <List<Anime>> _futureAnimes;
+  late final TextEditingController _searchController;
+
 
   @override
-  void initState () {
-    //TODO: Implement initState
+  void initState() {
     super.initState();
-    _futureAnimes = _repository.getTopAnime();
+    _searchController = TextEditingController(
+      text: context.read<AppStateProvider>().homeSearchQuery,
+    );
   }
+
+
+  @override
+  void dispose() {
+    _searchController.dispose(); // bersihkan controller
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold (
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final provider = context.watch<AppStateProvider>();
+    final filteredAnime = provider.getFilteredAnimeForHome();
+    return AppScaffold(
       appBar: AppBar(
-        title: Text('Top Anime'),
+        title: Text(
+          "AnimeVerse",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w800,
+            fontSize: screenWidth * 0.075,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-
-
-    )
-
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Search Bar — ditambahkan di bawah ini
+            SearchField(
+              controller: _searchController,
+              hintText: 'Anime Title',
+              onChanged: (value) {
+                provider.setHomeSearchQuery(value);
+              },
+              showClear: provider.homeSearchQuery.isNotEmpty,
+              onClear: () {
+                _searchController.clear(); // kosongkan tampilan
+                provider.setHomeSearchQuery(''); // kosongkan state
+              },
+            ),
+            GenreList(
+              selected: provider.selectedGenre,
+              onGenreSelected: (genre) {
+                provider.setSelectedGenre(genre);
+              },
+            ),
+            SizedBox(height: screenHeight * 0.03),
+            AnimeView(animeList: filteredAnime),
+            SizedBox(height: screenHeight * 0.025),
+          ],
+        ),
+      ),
+    );
   }
-
 }
